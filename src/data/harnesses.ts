@@ -22,7 +22,6 @@ const DEFAULT_HARNESS_SEEDS: readonly DefaultHarnessSeed[] = [
 
   // B tier
   { id: "claude-code", name: "Claude Code", container: "B", iconFile: "claude-code.svg" },
-  { id: "mini-swe-agent", name: "mini-SWE-agent", container: "B", iconFile: "mini-swe-agent.png" },
 
   // C tier
   { id: "cline", name: "Cline", container: "C", iconFile: "cline.svg" },

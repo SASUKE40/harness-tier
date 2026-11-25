@@ -12,8 +12,8 @@ import {
   getIconPath,
 } from "../data/harnesses";
 
-const STORAGE_KEY = "harness-tier-list:v4";
-const PREFS_KEY = "harness-tier-list:prefs:v4";
+const STORAGE_KEY = "harness-tier-list:v5";
+const PREFS_KEY = "harness-tier-list:prefs:v5";
 
 interface StoredPrefs {
   showUnranked: boolean;
