@@ -2,26 +2,57 @@ import { useCallback, useEffect, useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 import {
   ALL_CONTAINER_IDS,
+  DEFAULT_SORT_PRESET,
+  isSortPresetId,
   type ContainerId,
   type HarnessItem,
+  type SortPresetId,
   type TierBoardState,
 } from "../types";
 import {
-  createDefaultBoardState,
+  createBoardStateForPreset,
   createMonogramDataUrl,
   getIconPath,
 } from "../data/harnesses";
 
-const STORAGE_KEY = "harness-tier-list:v1";
-const PREFS_KEY = "harness-tier-list:prefs:v1";
+const STORAGE_KEY = "harness-tier-list:v2";
+const PREFS_KEY = "harness-tier-list:prefs:v2";
 
 interface StoredPrefs {
   showScores: boolean;
   showUnranked: boolean;
+  sortPreset: SortPresetId;
 }
 
-function loadBoardState(): TierBoardState {
-  const defaults = createDefaultBoardState();
+function loadPrefs(): StoredPrefs {
+  try {
+    const raw = window.localStorage.getItem(PREFS_KEY);
+    if (!raw) {
+      return {
+        showScores: true,
+        showUnranked: false,
+        sortPreset: DEFAULT_SORT_PRESET,
+      };
+    }
+    const parsed = JSON.parse(raw) as Partial<StoredPrefs>;
+    return {
+      showScores: typeof parsed.showScores === "boolean" ? parsed.showScores : true,
+      showUnranked: typeof parsed.showUnranked === "boolean" ? parsed.showUnranked : false,
+      sortPreset: isSortPresetId(parsed.sortPreset)
+        ? parsed.sortPreset
+        : DEFAULT_SORT_PRESET,
+    };
+  } catch {
+    return {
+      showScores: true,
+      showUnranked: false,
+      sortPreset: DEFAULT_SORT_PRESET,
+    };
+  }
+}
+
+function loadBoardState(preset: SortPresetId): TierBoardState {
+  const defaults = createBoardStateForPreset(preset);
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
@@ -32,11 +63,10 @@ function loadBoardState(): TierBoardState {
     if (!candidate.tiers || !candidate.items) return defaults;
 
     const nextItems: Record<string, HarnessItem> = {};
-    // Preserve built-in items with fresh relative icon paths
     for (const [id, item] of Object.entries(defaults.items)) {
       nextItems[id] = item;
     }
-    // Restore valid custom items
+
     for (const [id, item] of Object.entries(candidate.items)) {
       if (
         item &&
@@ -84,7 +114,6 @@ function loadBoardState(): TierBoardState {
       }
     }
 
-    // Ensure any newly introduced default items aren't lost
     for (const containerId of ALL_CONTAINER_IDS) {
       for (const itemId of defaults.tiers[containerId]) {
         if (!seen.has(itemId)) {
@@ -100,23 +129,33 @@ function loadBoardState(): TierBoardState {
   }
 }
 
-function loadPrefs(initialUnrankedCount: number): StoredPrefs {
-  try {
-    const raw = window.localStorage.getItem(PREFS_KEY);
-    if (!raw) {
-      return { showScores: true, showUnranked: initialUnrankedCount > 0 };
+function mergeCustomItemsIntoPreset(
+  prevBoard: TierBoardState,
+  preset: SortPresetId,
+): TierBoardState {
+  const fresh = createBoardStateForPreset(preset);
+  const nextItems: Record<string, HarnessItem> = { ...fresh.items };
+  const nextTiers: Record<ContainerId, string[]> = {
+    S: [...fresh.tiers.S],
+    A: [...fresh.tiers.A],
+    B: [...fresh.tiers.B],
+    C: [...fresh.tiers.C],
+    D: [...fresh.tiers.D],
+    F: [...fresh.tiers.F],
+    unranked: [...fresh.tiers.unranked],
+  };
+
+  for (const containerId of ALL_CONTAINER_IDS) {
+    for (const itemId of prevBoard.tiers[containerId]) {
+      const item = prevBoard.items[itemId];
+      if (item?.isCustom) {
+        nextItems[itemId] = item;
+        nextTiers[containerId].push(itemId);
+      }
     }
-    const parsed = JSON.parse(raw) as Partial<StoredPrefs>;
-    return {
-      showScores: typeof parsed.showScores === "boolean" ? parsed.showScores : true,
-      showUnranked:
-        typeof parsed.showUnranked === "boolean"
-          ? parsed.showUnranked || initialUnrankedCount > 0
-          : initialUnrankedCount > 0,
-    };
-  } catch {
-    return { showScores: true, showUnranked: initialUnrankedCount > 0 };
   }
+
+  return { tiers: nextTiers, items: nextItems };
 }
 
 export function findContainerForItem(
@@ -140,9 +179,9 @@ export interface AddHarnessInput {
 }
 
 export function useTierBoard() {
-  const [board, setBoard] = useState<TierBoardState>(() => loadBoardState());
-  const [prefs, setPrefs] = useState<StoredPrefs>(() =>
-    loadPrefs(board.tiers.unranked.length),
+  const [prefs, setPrefs] = useState<StoredPrefs>(() => loadPrefs());
+  const [board, setBoard] = useState<TierBoardState>(() =>
+    loadBoardState(prefs.sortPreset),
   );
 
   useEffect(() => {
@@ -221,10 +260,14 @@ export function useTierBoard() {
     setBoard(snapshot);
   }, []);
 
-  const resetToDefault = useCallback(() => {
-    const fresh = createDefaultBoardState();
-    setBoard(fresh);
+  const applySortPreset = useCallback((preset: SortPresetId) => {
+    setPrefs((prev) => ({ ...prev, sortPreset: preset }));
+    setBoard((prev) => mergeCustomItemsIntoPreset(prev, preset));
   }, []);
+
+  const resetToDefault = useCallback(() => {
+    setBoard(createBoardStateForPreset(prefs.sortPreset));
+  }, [prefs.sortPreset]);
 
   const toggleScores = useCallback(() => {
     setPrefs((prev) => ({ ...prev, showScores: !prev.showScores }));
@@ -280,11 +323,13 @@ export function useTierBoard() {
 
   return {
     board,
+    sortPreset: prefs.sortPreset,
     showScores: prefs.showScores,
     showUnranked: prefs.showUnranked,
     moveAcrossContainers,
     reorderWithinContainer,
     restoreBoardSnapshot,
+    applySortPreset,
     resetToDefault,
     toggleScores,
     toggleUnranked,

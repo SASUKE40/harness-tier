@@ -18,7 +18,10 @@ export function HarnessTileContent({
   onRemoveCustom,
 }: HarnessTileContentProps) {
   return (
-    <div className={`harness-tile-inner${isOverlay ? " is-overlay" : ""}`}>
+    <div
+      className={`harness-tile-inner${isOverlay ? " is-overlay" : ""}`}
+      title={item.details ?? item.name}
+    >
       {item.isCustom && !isOverlay && onRemoveCustom && (
         <button
           type="button"
