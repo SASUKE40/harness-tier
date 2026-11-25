@@ -11,7 +11,6 @@ interface TierRowProps {
   tier: TierDefinition;
   itemIds: string[];
   itemsById: Record<string, HarnessItem>;
-  showScores: boolean;
   isActiveDropTarget: boolean;
   isDraggingAny: boolean;
   onRemoveCustom: (id: string) => void;
@@ -21,7 +20,6 @@ export function TierRow({
   tier,
   itemIds,
   itemsById,
-  showScores,
   isActiveDropTarget,
   isDraggingAny,
   onRemoveCustom,
@@ -56,7 +54,6 @@ export function TierRow({
               <SortableHarnessTile
                 key={item.id}
                 item={item}
-                showScores={showScores}
                 onRemoveCustom={onRemoveCustom}
               />
             );

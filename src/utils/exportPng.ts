@@ -45,7 +45,6 @@ function wrapTextLines(
 export async function exportTierBoardToPng(
   boardElement: HTMLElement,
   boardState: TierBoardState,
-  showScores: boolean,
 ): Promise<void> {
   const boardRect = boardElement.getBoundingClientRect();
   const width = Math.round(boardRect.width);
@@ -165,21 +164,13 @@ export async function exportTierBoardToPng(
           ctx.drawImage(img, drawX, drawY, drawW, drawH);
         }
 
-        if (showScores && item.score) {
-          ctx.fillStyle = "#7a7a7a";
-          ctx.font = `400 10.5px ${fontFamily}`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText(item.score, centerX, iy - 4);
-        }
-
         const labelMaxW = Math.max(72, tileRect.width - 6);
         ctx.fillStyle = "#ededed";
         ctx.font = `400 11.5px ${fontFamily}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
         const lines = wrapTextLines(ctx, item.name, labelMaxW);
-        const startY = iy + iconRect.height + 4;
+        const startY = iy + iconRect.height + 5;
         lines.forEach((line, index) => {
           ctx.fillText(line, centerX, startY + index * 13.5);
         });

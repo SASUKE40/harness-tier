@@ -35,7 +35,6 @@ import { UnrankedTray } from "./UnrankedTray";
 interface TierBoardProps {
   board: TierBoardState;
   boardRef: RefObject<HTMLDivElement | null>;
-  showScores: boolean;
   showUnranked: boolean;
   onMoveAcrossContainers: (
     itemId: string,
@@ -65,7 +64,6 @@ const dropAnimation: DropAnimation = {
 export function TierBoard({
   board,
   boardRef,
-  showScores,
   showUnranked,
   onMoveAcrossContainers,
   onReorderWithinContainer,
@@ -307,7 +305,6 @@ export function TierBoard({
             tier={tier}
             itemIds={board.tiers[tier.id]}
             itemsById={board.items}
-            showScores={showScores}
             isActiveDropTarget={activeId !== null && overContainerId === tier.id}
             isDraggingAny={activeId !== null}
             onRemoveCustom={onRemoveCustom}
@@ -319,7 +316,6 @@ export function TierBoard({
         <UnrankedTray
           itemIds={board.tiers.unranked}
           itemsById={board.items}
-          showScores={showScores}
           isActiveDropTarget={activeId !== null && overContainerId === "unranked"}
           onRemoveCustom={onRemoveCustom}
         />
@@ -328,11 +324,7 @@ export function TierBoard({
       <DragOverlay dropAnimation={dropAnimation}>
         {activeItem ? (
           <div className="harness-tile-overlay">
-            <HarnessTileContent
-              item={activeItem}
-              showScores={showScores}
-              isOverlay
-            />
+            <HarnessTileContent item={activeItem} isOverlay />
           </div>
         ) : null}
       </DragOverlay>

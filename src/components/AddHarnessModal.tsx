@@ -1,9 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Upload, X } from "lucide-react";
-import {
-  ALL_CONTAINER_IDS,
-  type ContainerId,
-} from "../types";
+import { ALL_CONTAINER_IDS, type ContainerId } from "../types";
 import type { AddHarnessInput } from "../hooks/useTierBoard";
 import { createMonogramDataUrl } from "../data/harnesses";
 
@@ -30,7 +27,6 @@ export function AddHarnessModal({
   onAdd,
 }: AddHarnessModalProps) {
   const [name, setName] = useState("");
-  const [score, setScore] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const [uploadedDataUrl, setUploadedDataUrl] = useState<string | null>(null);
   const [accentColor, setAccentColor] = useState<string>(ACCENT_PALETTE[0]);
@@ -84,13 +80,11 @@ export function AddHarnessModal({
     }
     onAdd({
       name: trimmed,
-      score: score.trim() || null,
       iconDataOrUrl: uploadedDataUrl || iconUrl.trim() || null,
       accentColor,
       targetContainer,
     });
     setName("");
-    setScore("");
     setIconUrl("");
     setUploadedDataUrl(null);
     setTargetContainer("unranked");
@@ -124,9 +118,6 @@ export function AddHarnessModal({
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="modal-preview-row">
             <div className="modal-preview-tile">
-              {score.trim() && (
-                <span className="harness-score">{score.trim()}</span>
-              )}
               <div className="harness-icon-frame">
                 <img
                   src={previewIcon}
@@ -154,36 +145,22 @@ export function AddHarnessModal({
                 />
               </label>
 
-              <div className="form-row-2">
-                <label className="form-field">
-                  <span className="form-label">Score (optional)</span>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={score}
-                    onChange={(e) => setScore(e.target.value)}
-                    placeholder="e.g. -6.5"
-                    maxLength={12}
-                  />
-                </label>
-
-                <label className="form-field">
-                  <span className="form-label">Place in</span>
-                  <select
-                    className="form-input"
-                    value={targetContainer}
-                    onChange={(e) =>
-                      setTargetContainer(e.target.value as ContainerId)
-                    }
-                  >
-                    {ALL_CONTAINER_IDS.map((id) => (
-                      <option key={id} value={id}>
-                        {id === "unranked" ? "Unranked" : `Tier ${id}`}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
+              <label className="form-field">
+                <span className="form-label">Place in</span>
+                <select
+                  className="form-input"
+                  value={targetContainer}
+                  onChange={(e) =>
+                    setTargetContainer(e.target.value as ContainerId)
+                  }
+                >
+                  {ALL_CONTAINER_IDS.map((id) => (
+                    <option key={id} value={id}>
+                      {id === "unranked" ? "Unranked" : `Tier ${id}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
 

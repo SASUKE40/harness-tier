@@ -6,21 +6,19 @@ import type { HarnessItem } from "../types";
 
 interface HarnessTileContentProps {
   item: HarnessItem;
-  showScores: boolean;
   isOverlay?: boolean;
   onRemoveCustom?: (id: string) => void;
 }
 
 export function HarnessTileContent({
   item,
-  showScores,
   isOverlay = false,
   onRemoveCustom,
 }: HarnessTileContentProps) {
   return (
     <div
       className={`harness-tile-inner${isOverlay ? " is-overlay" : ""}`}
-      title={item.details ?? item.name}
+      title={item.name}
     >
       {item.isCustom && !isOverlay && onRemoveCustom && (
         <button
@@ -36,12 +34,6 @@ export function HarnessTileContent({
         >
           <X size={11} strokeWidth={2.5} />
         </button>
-      )}
-
-      {showScores && (
-        <span className="harness-score" aria-label={item.score ? `Score ${item.score}` : undefined}>
-          {item.score ?? "\u00A0"}
-        </span>
       )}
 
       <div className="harness-icon-frame" data-harness-icon>
@@ -62,13 +54,11 @@ export function HarnessTileContent({
 
 interface SortableHarnessTileProps {
   item: HarnessItem;
-  showScores: boolean;
   onRemoveCustom?: (id: string) => void;
 }
 
 export function SortableHarnessTile({
   item,
-  showScores,
   onRemoveCustom,
 }: SortableHarnessTileProps) {
   const {
@@ -96,7 +86,6 @@ export function SortableHarnessTile({
     >
       <HarnessTileContent
         item={item}
-        showScores={showScores}
         onRemoveCustom={onRemoveCustom}
       />
     </div>

@@ -8,15 +8,11 @@ import { exportTierBoardToPng } from "./utils/exportPng";
 export default function App() {
   const {
     board,
-    sortPreset,
-    showScores,
     showUnranked,
     moveAcrossContainers,
     reorderWithinContainer,
     restoreBoardSnapshot,
-    applySortPreset,
     resetToDefault,
-    toggleScores,
     toggleUnranked,
     addCustomHarness,
     removeCustomHarness,
@@ -34,7 +30,7 @@ export default function App() {
     setIsExporting(true);
     setExportError(null);
     try {
-      await exportTierBoardToPng(el, board, showScores);
+      await exportTierBoardToPng(el, board);
       setExportSuccess(true);
       window.setTimeout(() => setExportSuccess(false), 1800);
     } catch (err) {
@@ -44,20 +40,16 @@ export default function App() {
     } finally {
       setIsExporting(false);
     }
-  }, [board, isExporting, showScores]);
+  }, [board, isExporting]);
 
   return (
     <div className="app-shell">
       <div className="app-container">
         <Toolbar
-          sortPreset={sortPreset}
-          showScores={showScores}
           showUnranked={showUnranked}
           unrankedCount={board.tiers.unranked.length}
           isExporting={isExporting}
           exportSuccess={exportSuccess}
-          onSelectSortPreset={applySortPreset}
-          onToggleScores={toggleScores}
           onToggleUnranked={toggleUnranked}
           onOpenAddModal={() => setIsAddModalOpen(true)}
           onExportPng={handleExportPng}
@@ -74,7 +66,6 @@ export default function App() {
           <TierBoard
             board={board}
             boardRef={boardRef}
-            showScores={showScores}
             showUnranked={showUnranked}
             onMoveAcrossContainers={moveAcrossContainers}
             onReorderWithinContainer={reorderWithinContainer}

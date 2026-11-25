@@ -6,7 +6,6 @@ import { SortableHarnessTile } from "./HarnessTile";
 interface UnrankedTrayProps {
   itemIds: string[];
   itemsById: Record<string, HarnessItem>;
-  showScores: boolean;
   isActiveDropTarget: boolean;
   onRemoveCustom: (id: string) => void;
 }
@@ -14,7 +13,6 @@ interface UnrankedTrayProps {
 export function UnrankedTray({
   itemIds,
   itemsById,
-  showScores,
   isActiveDropTarget,
   onRemoveCustom,
 }: UnrankedTrayProps) {
@@ -46,7 +44,6 @@ export function UnrankedTray({
               <SortableHarnessTile
                 key={item.id}
                 item={item}
-                showScores={showScores}
                 onRemoveCustom={onRemoveCustom}
               />
             );
