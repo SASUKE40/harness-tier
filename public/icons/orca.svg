@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <rect width="256" height="256" rx="18" fill="#050505"/>
+  <!-- Left sleek wave tail sweeping up into slender vertical fin -->
+  <path fill="#ffffff" d="M48 158 C56 150, 76 150, 94 150 C106 150, 114 144, 120 128 C126 112, 134 92, 141 78 C142.5 75, 145 76, 144.2 79.5 C139.5 100, 133 122, 127 141 C122 156, 110 161, 92 161 C74 161, 56 161, 46 161 C44 161, 45.5 159.5, 48 158 Z"/>
+  <!-- Upper dorsal accent curve -->
+  <path fill="#ffffff" d="M150 93 C153 87, 162 86, 173 88 C176 88.5, 175 91.5, 172 91.8 C163 92.5, 156 94, 152 98 C150.5 99.5, 148.5 96, 150 93 Z"/>
+  <!-- Main breaching arc sweeping right and tapering smoothly down-left -->
+  <path fill="#ffffff" d="M210 100 C213 100.5, 213 103.5, 209 106 C194 114, 179 124, 166 138 C152 152, 139 167, 129 178 C127 180, 124.5 178.5, 126 175.5 C134 159, 143 141, 155 124 C168 106, 186 98, 210 100 Z"/>
+</svg>

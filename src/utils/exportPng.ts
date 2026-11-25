@@ -1,13 +1,21 @@
 import { TIER_DEFINITIONS, type TierBoardState } from "../types";
 
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
+async function loadImage(src: string): Promise<HTMLImageElement> {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
     img.onerror = () => reject(new Error(`Failed to load icon: ${src}`));
     img.src = src;
   });
+  if (typeof img.decode === "function") {
+    try {
+      await img.decode();
+    } catch {
+      // Already loaded; continue drawing cleanly
+    }
+  }
+  return img;
 }
 
 function wrapTextLines(
@@ -53,6 +61,8 @@ export async function exportTierBoardToPng(
   }
 
   ctx.scale(dpr, dpr);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = "#141414";
   ctx.fillRect(0, 0, width, height);
 
@@ -102,8 +112,15 @@ export async function exportTierBoardToPng(
     ctx.fillStyle = tier.color;
     ctx.fillRect(lx, ry, lw, rh);
 
-    // Tier letter
-    const labelFontSize = Math.min(58, Math.max(30, lw * 0.31));
+    // Tier letter sized to match the compact live CSS typography
+    const labelTextEl = labelEl.querySelector<HTMLElement>(".tier-label-text");
+    const computedLabelSize = labelTextEl
+      ? parseFloat(window.getComputedStyle(labelTextEl).fontSize)
+      : NaN;
+    const labelFontSize = Number.isFinite(computedLabelSize)
+      ? computedLabelSize
+      : Math.min(40, Math.max(24, lw * 0.36));
+
     ctx.fillStyle = "#000000";
     ctx.font = `400 ${labelFontSize}px ${fontFamily}`;
     ctx.textAlign = "center";
@@ -137,25 +154,34 @@ export async function exportTierBoardToPng(
         const iy = iconRect.top - boardRect.top;
         const img = loadedIcons.get(itemId);
         if (img) {
-          ctx.drawImage(img, ix, iy, iconRect.width, iconRect.height);
+          // Preserve aspect ratio cleanly inside the icon frame
+          const natW = img.naturalWidth || iconRect.width;
+          const natH = img.naturalHeight || iconRect.height;
+          const scale = Math.min(iconRect.width / natW, iconRect.height / natH);
+          const drawW = natW * scale;
+          const drawH = natH * scale;
+          const drawX = ix + (iconRect.width - drawW) / 2;
+          const drawY = iy + (iconRect.height - drawH) / 2;
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
         }
 
         if (showScores && item.score) {
           ctx.fillStyle = "#7a7a7a";
-          ctx.font = `400 11px ${fontFamily}`;
+          ctx.font = `400 10.5px ${fontFamily}`;
           ctx.textAlign = "center";
           ctx.textBaseline = "bottom";
-          ctx.fillText(item.score, centerX, iy - 5);
+          ctx.fillText(item.score, centerX, iy - 4);
         }
 
+        const labelMaxW = Math.max(72, tileRect.width - 6);
         ctx.fillStyle = "#ededed";
-        ctx.font = `400 12.5px ${fontFamily}`;
+        ctx.font = `400 11.5px ${fontFamily}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
-        const lines = wrapTextLines(ctx, item.name, 84);
-        const startY = iy + iconRect.height + 6;
+        const lines = wrapTextLines(ctx, item.name, labelMaxW);
+        const startY = iy + iconRect.height + 4;
         lines.forEach((line, index) => {
-          ctx.fillText(line, centerX, startY + index * 15);
+          ctx.fillText(line, centerX, startY + index * 13.5);
         });
       }
     }

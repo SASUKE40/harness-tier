@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <rect width="256" height="256" rx="32" fill="#000000"/>
+  <!-- Geometric T -->
+  <path fill="#ffffff" d="M40 72 H128 V96 H97 V186 H71 V96 H40 Z"/>
+  <!-- Geometric 3 -->
+  <path fill="#ffffff" d="M137 72 H208 V92 L175 118 C195 120, 211 133, 211 153 C211 174, 193 188, 169 188 C151 188, 137 180, 130 168 L149 154 C154 162, 161 166, 170 166 C180 166, 187 161, 187 152 C187 143, 180 138, 167 138 H155 V119 L181 95 H137 Z"/>
+</svg>
